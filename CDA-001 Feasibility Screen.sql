@@ -97,7 +97,11 @@ FROM (
            RANK() OVER (PARTITION BY PATIENT_ID, LOINC_CODE ORDER BY TEST_DATE DESC) AS rk
     FROM lab_results
     WHERE LOINC_CODE IN ('4548-4', '33914-3')
-      AND TEST_DATE >= '2017-01-01'          -- 365 days ending on the index date
+      -- 365 days ending on, and including, the index date. The first version
+      -- started at DATEADD(day, -365, '2017-12-31'), which is 2016-12-31, and
+      -- ended at the start of the index day: also 365 days, one day earlier at
+      -- both ends. On this extract the shift moves no count.
+      AND TEST_DATE >= '2017-01-01'
       AND TEST_DATE <  '2018-01-01'
     -- No threshold here. Filtering before the ranking would return each
     -- patient's latest result ABOVE 7.5, not their latest result.
